@@ -1,40 +1,64 @@
-const Discord = require('discord.js');
-const token = require('./config.json');
-const intents = new Discord.IntentsBitField(3276799)
-const bot = new Discord.Client({intents});
-const axios = require('axios');
-
-const PREFIX = '/'; // Vous pouvez définir votre propre préfixe
-
-const extractDescriptionFromResponse = (responseData) => {
-	// À adapter en fonction de la structure de la réponse
-	// Ceci est un exemple simple, veuillez ajuster en fonction de votre cas d'utilisation
-	return responseData.description || 'Aucune description disponible.';
-};
-
-bot.on("ready", async () => {
-	console.log(`${bot.user.tag} est prêt à faire lire !`)
-})
-
-bot.on('message', async (message) => {
-	if (message.author.bot) return; // Ignorer les messages des autres bots
-	if (!message.content.startsWith(PREFIX)) return; // Ignorer les messages sans le préfixe
-
-	const args = message.content.slice(PREFIX.length).trim().split(/ +/);
-	const command = args.shift().toLowerCase();
-
-	if (command === 'getdescription') {
-		const videoLink = args[0];
-		try {
-			const response = await axios.get(videoLink);
-			const description = extractDescriptionFromResponse(response.data); // À adapter selon la structure de la réponse
-			const targetChannel = message.guild.channels.cache.get('1168465447461584967');
-			targetChannel.send(`Description de la vidéo : ${description}`);
-		} catch (error) {
-			console.error('Erreur lors de la récupération de la description de la vidéo :', error);
-			message.reply('Une erreur s\'est produite lors de la récupération de la description de la vidéo.');
-		}
-	}
-});
+const discord = require('discord.js')
+const token = require('./config.json')
+const intents = new discord.IntentsBitField(3276799)
+const bot = new discord.Client({intents})
+const ytld = require('ytdl-core')
 
 bot.login(token["token"]);
+
+bot.on("ready", async () => {
+	console.log(`${bot.user.tag} est là et la boutique est ouverte !`)
+})
+
+function getUrl(message) {
+	return message.embeds[0]?.url;
+}
+
+async function getDescription(url) {
+	try {
+		return (await ytld.getBasicInfo(url))?.videoDetails?.description;
+	} catch (error) {
+		console.error("Pas de description")
+		return ""
+	}
+}
+
+function extractData(description) {
+	try {
+		const regex = /👉 [^\n]+amzn\.to[^\n]+/g;
+		return description.match(regex);
+	} catch (error) {
+		console.error("No data")
+		return ""
+	}
+}
+
+function createEmbed(data) {
+	return new discord.EmbedBuilder()
+		.setColor("#c2a30a")
+		.setTitle("Une nouvelle vidéographie de votre éditeur préféré est sortie !\
+		\nVoici ce que nous avons en stock :")
+		.setDescription(data.join('\n'))
+}
+
+bot.on('messageCreate', async message => {
+	if (message.channel.id == 988839507287744572 && message.author.id == 282286160494067712) {
+		const url = await getUrl(message);
+		const description = await getDescription(url)
+		const data = extractData(description)
+		const embed = createEmbed(data);
+		const channel = await bot.guilds.fetch(1044168120971038790)
+		await channel.send({embeds: [embed]})
+	}
+
+	if (message.channel.id == 967893626371833916 && message.author.id == 359784239488696322) {
+		await message.delete();
+		const messages = await message.channel.messages.fetch({limit: 1});
+		const url = await getUrl(messages.first());
+		const description = await getDescription(url)
+		const data = extractData(description)
+		const embed = createEmbed(data);
+		await message.channel.send({embeds: [embed]})
+	}
+
+});
