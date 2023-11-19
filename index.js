@@ -49,19 +49,20 @@ bot.on('messageCreate', async message => {
 		const description = await getDescription(url)
 		const data = extractData(description)
 		const embed = createEmbed(data);
-		const channel = await bot.guilds.fetch(1044168120971038790)
+		const channel = await bot.channels.fetch("1044168120971038790")
 		await channel.send({embeds: [embed]})
 	}
 
 	// TEST
-	/*if (message.channel.id == 967893626371833916 && message.author.id == 359784239488696322) {
+	/*if (message.channel.id == 988839507287744572 && message.author.id == 359784239488696322) {
 		await message.delete();
 		const messages = await message.channel.messages.fetch({limit: 1});
 		const url = await getUrl(messages.first());
 		const description = await getDescription(url)
 		const data = extractData(description)
 		const embed = createEmbed(data);
-		await message.channel.send({embeds: [embed]})
+		const channel = await bot.channels.fetch("1044168120971038790")
+		await channel.send({embeds: [embed]})
 	}*/
 
 });
