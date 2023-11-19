@@ -37,8 +37,10 @@ function createEmbed(data) {
 	return new discord.EmbedBuilder()
 		.setColor("#c2a30a")
 		.setTitle("Une nouvelle vidéographie de votre éditeur préféré est sortie !\
-		\nVoici ce que nous avons en stock :")
-		.setDescription(data.join('\n'))
+		\nVoici nos liens collaboratifs et nos livres :")
+		.setDescription(`👉 La librairie indépendante Agathos (code promotionnel : LEHUSSARD) : https://www.agathos-livres.fr/\
+		\n👉 Pour de la lourde littérature visitez la maison d\'édition de votre Hussard préféré : https://www.lagiberne.fr/\
+		\n${data ? data.join('\n'): ""}`)
 }
 
 bot.on('messageCreate', async message => {
@@ -51,7 +53,8 @@ bot.on('messageCreate', async message => {
 		await channel.send({embeds: [embed]})
 	}
 
-	if (message.channel.id == 967893626371833916 && message.author.id == 359784239488696322) {
+	// TEST
+	/*if (message.channel.id == 967893626371833916 && message.author.id == 359784239488696322) {
 		await message.delete();
 		const messages = await message.channel.messages.fetch({limit: 1});
 		const url = await getUrl(messages.first());
@@ -59,6 +62,6 @@ bot.on('messageCreate', async message => {
 		const data = extractData(description)
 		const embed = createEmbed(data);
 		await message.channel.send({embeds: [embed]})
-	}
+	}*/
 
 });
