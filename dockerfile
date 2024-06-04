@@ -1,5 +1,5 @@
 # Utiliser une image de base officielle de Node.js
-FROM node:16
+FROM node:16-buster-slim
 
 # Définir le répertoire de travail dans le conteneur
 WORKDIR /app
